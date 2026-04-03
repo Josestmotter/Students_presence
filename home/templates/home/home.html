@@ -1,0 +1,55 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students Presence</title>
+    <link rel="stylesheet" href="{% static 'home/home.css' %}">
+</head>
+<body>
+    
+    <div class="gola gola1">Students presence</div>
+    <div class="gola gola2"></div>
+    <div class="dobra dobra1"></div>
+    <div class="dobra dobra2"></div>
+    <div class="gola-tras"></div>
+
+    <form method="POST" enctype="multipart/form-data" id="form-upload">
+    {% csrf_token %}
+
+    <div class="drop-area" id="drop-area">
+        <p></p>
+        <input type="file" name="arquivo" id="arquivo">
+    </div>
+
+    <button class="botao-gola" type="submit"></button>
+</form>
+    
+    <div class="corpo">
+        <div class="caixa-pai">
+            <div class="container-aluno">
+                {% for item in alunos %}
+                <a href="/?numero={{ item.numero }}" class="aluno"> {{ item.nome }}</a>
+                {% endfor %}
+        </div>    
+        
+        </div>
+        <div class="aba-esquerda">
+            {% if aluno %}
+            {% if aula %}
+            <div class="info-aba info-aba1">Nome: {{ aluno.nome }}</div>
+            <div class="info-aba info-aba2">Presença: {{ presenca }}%</div>
+            <div class="info-aba info-aba3">Faltas: {{ aluno.faltas }}</div>
+            <div class="info-aba info-aba4">{{ aula.aula }}</div>
+            <div class="info-aba info-aba5"></div>
+            <div class="info-aba info-aba6"></div>
+            {% endif %}
+            {% endif %}
+            
+            
+        </div>
+    </div>
+    
+    
+</body>
+</html>
