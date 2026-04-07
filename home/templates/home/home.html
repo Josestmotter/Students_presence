@@ -4,52 +4,158 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Students Presence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'home/home.css' %}">
 </head>
 <body>
-    
-    <div class="gola gola1">Students presence</div>
-    <div class="gola gola2"></div>
-    <div class="dobra dobra1"></div>
-    <div class="dobra dobra2"></div>
-    <div class="gola-tras"></div>
+    <div class="collar-wrap">
+        <div class="collar-left"></div>
+        <div class="collar-right"></div>
+        <div class="collar-diamond"></div>
+        <div class="collar-title">Students Presence</div>
 
-    <form method="POST" enctype="multipart/form-data" id="form-upload">
-    {% csrf_token %}
-
-    <div class="drop-area" id="drop-area">
-        <p></p>
-        <input type="file" name="arquivo" id="arquivo">
+        <form method="POST" enctype="multipart/form-data" id="form-upload" class="upload-zone">
+            {% csrf_token %}
+            <input type="hidden" name="number" id="number-hidden">
+            <div class="drop-area" id="drop-area">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4M8 8l4-4 4 4"/></svg>
+                <span>Upload CSV</span>
+                <input type="file" name="file" id="file">
+            </div>
+            <button class="botao-gola" type="submit">▲ SEND</button>
+        </form>
     </div>
 
-    <button class="botao-gola" type="submit"></button>
-</form>
-    
-    <div class="corpo">
-        <div class="caixa-pai">
-            <div class="container-aluno">
-                {% for item in alunos %}
-                <a href="/?numero={{ item.numero }}" class="aluno"> {{ item.nome }}</a>
+    {% if error %}
+    <div class="erro-banner">⚠ {{ error }}</div>
+    {% endif %}
+
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon blue">◎</div>
+            <div>
+                <div class="stat-label">Attendance Rate</div>
+                <div class="stat-value">{{ overall_attendance }}%</div>
+                <div class="stat-sub">Overall</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">👥</div>
+            <div>
+                <div class="stat-label">Total Students</div>
+                <div class="stat-value">{{ students.count }}</div>
+                <div class="stat-sub">enrolled</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon gold">📋</div>
+            <div>
+                <div class="stat-label">Last Class</div>
+                <div class="stat-value">{% if last_class %}#{{ last_class.class_number }}{% else %}—{% endif %}</div>
+                <div class="stat-sub">registered</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon red">⚠</div>
+            <div>
+                <div class="stat-label">Total Absences</div>
+                <div class="stat-value">{{ total_absences }}</div>
+                <div class="stat-sub">accumulated</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+
+        <div class="panel-left">
+            <div class="search-bar">
+                <input class="search-input" type="text" id="search-input" placeholder="🔍  Search student...">
+            </div>
+            <div class="aluno-list" id="student-list">
+                {% for item in students %}
+                <a href="/?number={{ item.number }}"
+                   class="aluno {% if student and student.number == item.number %}active{% endif %}">
+                    <div class="aluno-avatar">{{ item.name|slice:":1" }}</div>
+                    <span class="aluno-name">{{ item.name }}</span>
+                </a>
                 {% endfor %}
-        </div>    
-        
+            </div>
         </div>
-        <div class="aba-esquerda">
-            {% if aluno %}
-            {% if aula %}
-            <div class="info-aba info-aba1">Nome: {{ aluno.nome }}</div>
-            <div class="info-aba info-aba2">Presença: {{ presenca }}%</div>
-            <div class="info-aba info-aba3">Faltas: {{ aluno.faltas }}</div>
-            <div class="info-aba info-aba4">{{ aula.aula }}</div>
-            <div class="info-aba info-aba5"></div>
-            <div class="info-aba info-aba6"></div>
+
+        <div class="panel-right">
+            {% if student %}
+            <div class="student-header">
+                <div class="student-avatar-lg">{{ student.name|slice:":1" }}</div>
+                <div>
+                    <div class="student-name">{{ student.name }}</div>
+                    <div class="student-sub">Contact: {{ student.contacts }}</div>
+                    <div class="student-sub">{% if last_class %}Current class: #{{ last_class.class_number }}{% endif %}</div>
+                </div>
+            </div>
+
+            <div class="student-body">
+                <div class="info-row">
+                    <span class="info-row-label">Student absences</span>
+                    <span class="info-row-value red">{{ student.absences }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-row-label">Total absences</span>
+                    <span class="info-row-value gold">{{ total_absences }}</span>
+                </div>
+
+                <div class="presenca-bar-wrap">
+                    <div class="presenca-bar-top">
+                        <span>Student attendance</span>
+                        <span style="color:var(--text); font-weight:700;">{{ attendance }}%</span>
+                    </div>
+                    <div class="presenca-bar">
+                        <div class="presenca-fill" style="width: {{ attendance }}%"></div>
+                    </div>
+                </div>
+
+                <div class="presenca-bar-wrap">
+                    <div class="presenca-bar-top">
+                        <span>Overall class attendance</span>
+                        <span style="color:var(--text); font-weight:700;">{{ overall_attendance }}%</span>
+                    </div>
+                    <div class="presenca-bar">
+                        <div class="presenca-fill" style="width: {{ overall_attendance }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <a href="/export/" class="btn-csv">
+                ⬇ Download CSV Report
+            </a>
+            {% else %}
+            <div class="panel-right-empty">
+                <span style="font-size:32px">👈</span>
+                Select a student to see details
+            </div>
             {% endif %}
-            {% endif %}
-            
-            
         </div>
+
     </div>
-    
-    
+
+    <script>
+        document.getElementById("form-upload").addEventListener("submit", function() {
+            const params = new URLSearchParams(window.location.search);
+            const number = params.get("number");
+            if (number) {
+                document.getElementById("number-hidden").value = number;
+            }
+        });
+
+        document.getElementById("search-input").addEventListener("input", function() {
+            const q = this.value.toLowerCase();
+            document.querySelectorAll(".aluno").forEach(el => {
+                const name = el.querySelector(".aluno-name").textContent.toLowerCase();
+                el.style.display = name.includes(q) ? "" : "none";
+            });
+        });
+    </script>
+
 </body>
 </html>

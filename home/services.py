@@ -1,54 +1,53 @@
-#Personal defs here
-from home.models import Alunos, aulas
+from home.models import Students, Classes
 from django.db.models import F
 import pandas as pd
 from pathlib import Path
 from io import TextIOWrapper
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-def receber_planilha(request):
+def receive_spreadsheet(request):
     if request.method == "POST":
-        caminho = request.FILES.get("arquivo")
-    df = pd.read_csv(caminho)
+        path = request.FILES.get("file")
+    df = pd.read_csv(path)
     return df.to_dict(orient="records")
 
-def adicionar_alunos():
-    df = pd.read_csv("home/static/home/alunos_presenca.csv")
-    dados = df.to_dict(orient="records")
-    for pessoa in dados:
-        Alunos.objects.get_or_create(
-        numero=pessoa["Numero"],
-        defaults={
-            "nome": pessoa["Nome"],
-            "faltas": 0
-        }
-    )
+
+def add_students():
+    df = pd.read_csv("home/static/home/Stud_abs.csv")
+    data = df.to_dict(orient="records")
+    for person in data:
+        Students.objects.get_or_create(
+            number=person["Number"],
+            defaults={
+                "name": person["Name"],
+                "absences": 0
+            }
+        )
 
 
-def presenca_alunos(arquivo_csv):
-    for pessoa in arquivo_csv:
-        if pessoa["Presenca"] == "Faltou":
-            Alunos.objects.filter(numero=pessoa["Numero"]).update(
-                faltas=F("faltas") + 1
+def record_attendance(csv_file):
+    for person in csv_file:
+        if person["Attendance"] == "Absent":
+            Students.objects.filter(number=person["Number"]).update(
+                absences=F("absences") + 1
             )
 
-def processar_arquivo(arquivo):
-    arquivo_texto = TextIOWrapper(arquivo.file, encoding="utf-8")
-    df = pd.read_csv(arquivo_texto)
-    dados = df.to_dict(orient="records")
-    aula = df.iloc[1, 3]
-    
-    return dados, aula
+
+def process_file(file):
+    text_file = TextIOWrapper(file.file, encoding="utf-8")
+    df = pd.read_csv(text_file)
+    data = df.to_dict(orient="records")
+    class_num = int(df["Class"].dropna().iloc[0])  # gets the first non-empty value
+    return data, class_num
 
 
-def muda_numero_aula(request):
+def update_class_number(request):
     if request.method == "POST":
-        acao = request.POST.get("acao")
-        if acao == "soma":
-            aulas.objects.filter(id=1).update(aula=F("aula") + 1
-            )
-        elif acao == "subtrair":
-            aulas.objects.filter(id=1).update(aula=F("aula") - 1
-            )
-        return aulas.objects.first()
+        action = request.POST.get("action")
+        if action == "add":
+            Classes.objects.filter(id=1).update(class_number=F("class_number") + 1)
+        elif action == "subtract":
+            Classes.objects.filter(id=1).update(class_number=F("class_number") - 1)
+        return Classes.objects.first()
