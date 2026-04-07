@@ -30,8 +30,8 @@ Name,Number,Attendance,Contact,Class
 John Smith,101,Present,11999999999,1
 Mary Johnson,102,Absent,11988888888,1
 ```
-Pick a student from the sidebar to see their stats.
-Hit **Download CSV Report** whenever you need the full report.
+1. Pick a student from the sidebar to see their stats.
+2. Hit **Download CSV Report** whenever you need the full report.
 
 > Each class number can only be uploaded once — duplicates are rejected.
 
