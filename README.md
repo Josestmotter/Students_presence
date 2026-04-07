@@ -25,9 +25,11 @@ Then open `http://localhost:8000`
 ## How to use
 
 Upload a `.csv` file formatted like this:
+```
 Name,Number,Attendance,Contact,Class
 John Smith,101,Present,11999999999,1
 Mary Johnson,102,Absent,11988888888,1
+```
 Pick a student from the sidebar to see their stats.
 Hit **Download CSV Report** whenever you need the full report.
 
